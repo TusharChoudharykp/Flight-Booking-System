@@ -1,0 +1,30 @@
+{
+  "name": "flight-booking-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TusharChoudharykp/Flight-Booking-System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TusharChoudharykp/Flight-Booking-System/issues"
+  },
+  "homepage": "https://github.com/TusharChoudharykp/Flight-Booking-System#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "http-status-codes": "^2.3.0",
+    "mysql2": "^3.14.0",
+    "nodemon": "^3.1.9",
+    "sequelize": "^6.37.6",
+    "sequelize-cli": "^6.6.2",
+    "winston": "^3.17.0"
+  }
+}
