@@ -11,13 +11,8 @@ async function createFlight(data) {
     const flight = await flightRepository.create(data);
     return flight;
   } catch (error) {
-    if (error.name == "SequelizeValidationError") {
-      let explanation = [];
-
-      error.errors.forEach((err) => {
-        explanation.push(err.message);
-      });
-
+    if (error.name === "SequelizeValidationError") {
+      let explanation = error.errors.map((err) => err.message);
       throw new AppError(explanation, StatusCodes.BAD_REQUEST);
     }
     throw new AppError(
@@ -29,31 +24,53 @@ async function createFlight(data) {
 
 async function getAllFlights(query) {
   let customFilter = {};
-  //const endingTripTime = "23:59:00";
+  let sortFilter = [];
+  const endingTripTime = "23:59:59";
 
+  // Trip filter
   if (query.trips) {
-    [departureAirportId, arrivalAirportId] = query.trips.split("-");
-    customFilter.departureAirportId = departureAirportId;
-    customFilter.arrivalAirportId = arrivalAirportId;
+    const [departureAirportId, arrivalAirportId] = query.trips.split("-");
+    if (departureAirportId && arrivalAirportId) {
+      customFilter.departureAirportId = departureAirportId;
+      customFilter.arrivalAirportId = arrivalAirportId;
+    }
   }
+
+  // Price filter
   if (query.price) {
-    [minPrice, maxPrice] = query.price.split("-");
+    const [minPrice, maxPrice] = query.price.split("-");
     customFilter.price = {
-      [Op.between]: [minPrice, maxPrice == undefined ? 25000 : maxPrice],
+      [Op.between]: [minPrice || 0, maxPrice || 25000],
     };
   }
+
+  // Travellers filter
   if (query.travellers) {
     customFilter.totalSeats = {
       [Op.gte]: query.travellers,
     };
   }
+
+  // Trip Date filter
   if (query.tripDate) {
     customFilter.departureTime = {
-      [Op.gte]: query.tripDate,
+      [Op.between]: [
+        `${query.tripDate} 00:00:00`,
+        `${query.tripDate} ${endingTripTime}`,
+      ],
     };
   }
+
+  // Sorting filter
+  if (query.sort) {
+    const params = query.sort.split(",");
+    sortFilter = params.map((param) => param.split("_"));
+  }
   try {
-    const flights = await flightRepository.getAllFlights(customFilter);
+    const flights = await flightRepository.getAllFlights(
+      customFilter,
+      sortFilter
+    );
     return flights;
   } catch (error) {
     throw new AppError(
