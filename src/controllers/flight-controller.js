@@ -4,6 +4,7 @@ const FlightService = require("../services/flight-service");
 
 const ErrorResponse = require("../utils/common/error-response");
 const SuccessResponse = require("../utils/common/success-response");
+const { FLightService } = require("../services");
 
 // CREATE FLIGHTS
 async function createFlight(req, res) {
@@ -49,8 +50,24 @@ async function getFlight(req, res) {
   }
 }
 
+async function updateSeats(req, res) {
+  try {
+    const response = await FlightService.updateSeats({
+      flightId: req.params.id,
+      seats: req.body.seats,
+      desc: req.body.desc,
+    });
+    SuccessResponse.data = response;
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    ErrorResponse.error = error;
+    return res.status(error.statusCode).json(ErrorResponse);
+  }
+}
+
 module.exports = {
   createFlight,
   getAllFlights,
   getFlight,
+  updateSeats,
 };
